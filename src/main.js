@@ -352,6 +352,8 @@ on(document, 'keydown', function(e) {
     if (key) GL.keys[key] = true;
     GL.keys[e.keyCode] = true;
   }
+  GL.keys['CTRL'] = e.ctrlKey;
+  GL.keys['ALT'] = e.altKey;
 });
 
 on(document, 'keyup', function(e) {
@@ -360,7 +362,10 @@ on(document, 'keyup', function(e) {
     if (key) GL.keys[key] = false;
     GL.keys[e.keyCode] = false;
   }
+  GL.keys['CTRL'] = e.ctrlKey;
+  GL.keys['ALT'] = e.altKey;
 });
+
 
 function addOtherMethods() {
   // ### Multiple contexts
