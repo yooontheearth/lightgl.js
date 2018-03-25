@@ -70,6 +70,43 @@ Raytracer.prototype = {
   }
 };
 
+// ### GL.Raytracer.hitTestBox(origin, ray, pos, orientationMatrix, size)
+//
+// Traces the ray starting from `origin` along `ray` against the object bouding box
+// whose size is `size`, orientation is `orientationMatrix` and position is `pos`. Returns a `HitTest` with the
+// information or `null` for no intersection.
+Raytracer.hitTestOBB = function(origin, ray, pos, orientationMatrix, size) {
+    const p = pos.subtract(origin);
+    const m = orientationMatrix.m;
+    const x = new Vector(m[0], m[1], m[2]);
+    const y = new Vector(m[4], m[5], m[6]);
+    const z = new Vector(m[8], m[9], m[10]);
+
+    const s = [size.x, size.y, size.z];
+    const f = [x.dot(ray), y.dot(ray), z.dot(ray)];
+    const e = [x.dot(p), y.dot(p), z.dot(p)];
+    const t = [0, 0, 0, 0, 0, 0];
+    for(let i = 0; i < 3; i ++){
+      if(Math.abs(f[i]) < 1.0e-6){
+        return null;
+      }
+      t[i * 2 + 0] = (e[i] + s[i]) / f[i];
+      t[i * 2 + 1] = (e[i] - s[i]) / f[i];
+    }
+
+    let tmin = Math.max(Math.max(Math.min(t[0], t[1]), Math.min(t[2], t[3])), Math.min(t[4], t[5]));
+    let tmax = Math.min(Math.min(Math.max(t[0], t[1]), Math.max(t[2], t[3])), Math.max(t[4], t[5]));
+
+    if(tmax < 0 || tmin > tmax)
+      return null;
+
+    let time = tmin;
+    if(tmin < 0)
+      time = tmax;
+
+    return new HitTest(time, origin.add(ray.multiply(time)), new GL.Vector(1, 0, 0));
+};
+
 // ### GL.Raytracer.hitTestBox(origin, ray, min, max)
 //
 // Traces the ray starting from `origin` along `ray` against the axis-aligned box
